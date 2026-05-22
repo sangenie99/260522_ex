@@ -1,3 +1,4 @@
+/*
 // for in
 // 적당한 음식재료 배열을 만들어주세요
 const arr = ["감자", "양파", "돼지고기", "닭고기", "오이고추", "대파"];
@@ -37,5 +38,11 @@ for (const v of arr) {
 
 for (const v of Object.keys(obj)){
     console.log(v);
+}
+*/
+
+let arry = ["서울","경기","강원","부산","전라"]
+for (const key in arry) {
+    console.log(key,arry[key]);
 }
 

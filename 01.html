@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript 입문 학습 노트 01~11</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+    --green: #3B6D11; --green-light: #EAF3DE; --green-dark: #27500A;
+    --amber: #BA7517; --amber-light: #FAEEDA; --amber-dark: #633806;
+    --red: #A32D2D; --red-light: #FCEBEB; --red-dark: #791F1F;
+    --gray: #F5F5F5; --border: #DDDDDD; --text: #1A1A2E; --muted: #666;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text);
+    background: #FAFAFA;
+    padding: 0;
+  }
+
+  /* 인쇄 */
+  @media print {
+    body { background: white; }
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .section { page-break-inside: avoid; }
+    pre { page-break-inside: avoid; }
+  }
+
+  /* 사이드바 */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: white;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 100;
+  }
+  .sidebar-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 20px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .sidebar a {
+    display: block;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar a:hover, .sidebar a.active {
+    color: var(--blue);
+    border-left-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .sidebar a .num {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 22px;
+    margin-right: 8px;
+  }
+
+  /* 메인 */
+  .main {
+    margin-left: 220px;
+    max-width: 900px;
+    padding: 48px 48px 80px;
+  }
+
+  /* 표지 */
+  .cover {
+    text-align: center;
+    padding: 60px 0 48px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .cover h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .cover p { font-size: 16px; color: var(--muted); }
+  .cover .date { font-size: 13px; color: #aaa; margin-top: 6px; }
+
+  /* 섹션 */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 32px;
+  }
+
+  /* 제목 */
+  h1.sec-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    background: var(--blue);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h1.sec-title .badge {
+    background: rgba(255,255,255,0.25);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  h2.sub-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--blue-light);
+  }
+  h3.sub2-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 8px;
+  }
+
+  p.desc {
+    color: #444;
+    margin-bottom: 12px;
+    line-height: 1.8;
+  }
+
+  /* 코드 블록 */
+  pre {
+    background: #1E1E2E;
+    color: #CDD6F4;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    border: 1px solid #313244;
+  }
+  pre .cm  { color: #6C7086; } /* 주석 */
+  pre .kw  { color: #CBA6F7; } /* 키워드 */
+  pre .fn  { color: #89B4FA; } /* 함수 */
+  pre .st  { color: #A6E3A1; } /* 문자열 */
+  pre .nm  { color: #FAB387; } /* 숫자 */
+  pre .op  { color: #89DCEB; } /* 연산자 */
+  pre .ok  { color: #A6E3A1; font-weight: 500; } /* ✅ */
+  pre .ng  { color: #F38BA8; font-weight: 500; } /* ❌ */
+  pre .hl  { background: rgba(137,180,250,0.12); display: block; border-radius: 3px; }
+
+  /* 팁 박스 */
+  .tip {
+    border-radius: 0 8px 8px 0;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    margin: 10px 0 16px;
+    line-height: 1.7;
+    border-left: 4px solid;
+  }
+  .tip-info    { background: var(--blue-light);  border-color: var(--blue);  color: var(--blue-dark); }
+  .tip-success { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .tip-warn    { background: var(--amber-light); border-color: var(--amber); color: var(--amber-dark); }
+  .tip-danger  { background: var(--red-light);   border-color: var(--red);   color: var(--red-dark); }
+
+  /* 비교 표 */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0 16px;
+  }
+  .compare-box {
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+  }
+  .compare-box.blue  { background: var(--blue-light);  border-color: #B5D4F4; }
+  .compare-box.green { background: var(--green-light); border-color: #C0DD97; }
+  .compare-box.amber { background: var(--amber-light); border-color: #FAC775; }
+  .compare-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .compare-box.blue  .compare-label { color: var(--blue-dark); }
+  .compare-box.green .compare-label { color: var(--green-dark); }
+  .compare-box.amber .compare-label { color: var(--amber-dark); }
+  .compare-box ul { padding-left: 16px; font-size: 13.5px; color: #333; }
+  .compare-box ul li { margin-bottom: 4px; }
+
+  /* 일반 표 */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 14px;
+  }
+  table th {
+    background: var(--blue);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  table th:first-child { border-radius: 6px 0 0 0; }
+  table th:last-child  { border-radius: 0 6px 0 0; }
+  table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.65;
+  }
+  table tr:nth-child(even) td { background: #F8F9FA; }
+  table tr:last-child td { border-bottom: none; }
+  code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: #EFEFEF;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #C0392B;
+  }
+
+  /* 구분선 */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* 요약 섹션 */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--blue);
+  }
+  .summary-card .num-badge {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .summary-card p { font-size: 13px; color: #444; line-height: 1.65; }
+</style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav class="sidebar">
+  <div class="sidebar-title">목차</div>
+  <a href="#s01"><span class="num">01</span>while · for</a>
+  <a href="#s02"><span class="num">02</span>for-in · for-of</a>
+  <a href="#s03"><span class="num">03</span>함수 기본</a>
+  <a href="#s04"><span class="num">04</span>매개변수</a>
+  <a href="#s05"><span class="num">05</span>함수 심화</a>
+  <a href="#s06"><span class="num">06</span>구조분해할당</a>
+  <a href="#s07"><span class="num">07</span>호이스팅</a>
+  <a href="#s08"><span class="num">08</span>스코프</a>
+  <a href="#s09"><span class="num">09</span>클로저</a>
+  <a href="#s10"><span class="num">10</span>객체</a>
+  <a href="#s11"><span class="num">11</span>배열</a>
+  <a href="#summary"><span class="num">✓</span>요약</a>
+</nav>
+
+<div class="main">
+
+  <!-- 표지 -->
+  <div class="cover">
+    <h1>JavaScript 입문 학습 노트</h1>
+    <p>01 ~ 11번 예제 파일 전체 정리</p>
+    <p class="date">2025년 5월 22일</p>
+  </div>
+
+  <!-- 01 -->
+  <div class="section" id="s01">
+    <h1 class="sec-title"><span class="badge">01</span>반복문 — while · for</h1>
+    <p class="desc">반복문은 같은 코드를 여러 번 실행할 때 사용한다. 조건이 <code class="inline">true</code>인 동안 계속 반복하고, <code class="inline">false</code>가 되면 멈춘다.</p>
+
+    <h2 class="sub-title">while 문</h2>
+    <p class="desc">조건이 true인 동안 계속 반복한다. 반복 횟수를 미리 알 수 없을 때 사용한다.</p>
+    <pre><span class="kw">let</span> w = <span class="nm">0</span>;
+<span class="kw">while</span> (w &lt; <span class="nm">5</span>) {
+  console.log(w);  <span class="cm">// 0 1 2 3 4</span>
+  w++;             <span class="cm">// 증감식 — 없으면 무한루프!</span>
+}</pre>
+    <div class="tip tip-warn">⚠ <code class="inline">w++</code>처럼 변수를 변화시키는 증감식이 없으면 조건이 절대 false가 되지 않아 무한루프가 된다.</div>
+
+    <h2 class="sub-title">for 문</h2>
+    <p class="desc">초기식 · 조건식 · 증감식을 한 줄에 묶어 쓴다. 반복 횟수가 명확할 때 편리하다.</p>
+    <pre><span class="kw">for</span> (<span class="kw">let</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++) {
+  console.log(i);  <span class="cm">// 0 1 2 3 4</span>
+}
+<span class="cm">//  ↑초기식   ↑조건식  ↑증감식</span></pre>
+    <div class="tip tip-info">💡 <code class="inline">const i</code>는 값 변경이 불가해 오류가 난다. <code class="inline">let i</code>를 사용해야 한다.</div>
+
+    <h2 class="sub-title">배열 순회 — break · continue</h2>
+    <p class="desc">배열 인덱스는 0부터 시작하므로 조건은 <code class="inline">arr.length</code> <strong>미만(&lt;)</strong>으로 설정해야 한다.</p>
+    <pre><span class="kw">const</span> arr = [<span class="st">'아침'</span>, <span class="st">'간식'</span>, <span class="st">'점심'</span>, <span class="st">'간식'</span>, <span class="st">'저녁'</span>];
+
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="nm">0</span>; i &lt; arr.length; i++) {
+  <span class="kw">if</span> (arr[i] === <span class="st">'간식'</span>) <span class="kw">continue</span>;  <span class="cm">// 해당 반복 건너뜀</span>
+  console.log(arr[i]);
+  <span class="kw">if</span> (arr[i] === <span class="st">'점심'</span>) <span class="kw">break</span>;    <span class="cm">// 반복 전체 종료</span>
+}
+<span class="cm">// 출력: 아침  점심</span></pre>
+    <div class="compare">
+      <div class="compare-box blue">
+        <div class="compare-label">continue</div>
+        <ul><li>해당 반복만 건너뛰고 다음으로 진행</li></ul>
+      </div>
+      <div class="compare-box green">
+        <div class="compare-label">break</div>
+        <ul><li>반복 전체를 즉시 종료</li></ul>
+      </div>
+    </div>
+
+    <h2 class="sub-title">역방향 순회 · 중첩 for 문</h2>
+    <pre><span class="cm">// 역방향</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = arr.length - <span class="nm">1</span>; i >= <span class="nm">0</span>; i--) {
+  console.log(arr[i]);
+}
+
+<span class="cm">// 중첩 for — 2차원 배열(행·열) 탐색</span>
+<span class="kw">const</span> matrix = [
+  [<span class="nm">1</span>, <span class="st">'윌리엄'</span>, <span class="st">'바나나를 좋아함'</span>],
+  [<span class="nm">2</span>, <span class="st">'김자바'</span>, <span class="st">'김을 좋아함'</span>],
+];
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="nm">0</span>; i &lt; matrix.length; i++) {
+  <span class="kw">for</span> (<span class="kw">let</span> j = <span class="nm">0</span>; j &lt; matrix[<span class="nm">0</span>].length; j++) {
+    console.log(matrix[i][j]);
+  }
+}</pre>
+    <div class="tip tip-warn">⚠ 중첩이 깊을수록 실행 횟수가 기하급수적으로 늘어난다(O²). 꼭 필요할 때만 사용할 것.</div>
+  </div>
+
+  <hr>
+
+  <!-- 02 -->
+  <div class="section" id="s02">
+    <h1 class="sec-title"><span class="badge">02</span>for...in &amp; for...of</h1>
+    <p class="desc">배열과 객체를 순회하는 전용 반복문. 꺼내는 것이 키(key)냐 값(value)이냐가 핵심 차이다.</p>
+
+    <h2 class="sub-title">for...in — 키(key) 순회</h2>
+    <p class="desc">객체의 속성 이름(키)을 하나씩 꺼낸다. 배열에 쓰면 인덱스가 <strong>문자열</strong>로 나온다.</p>
+    <pre><span class="kw">const</span> obj = { name: <span class="st">'윌리엄'</span>, job: <span class="st">'반찬가게 사장'</span>, salary: <span class="nm">300_000</span> };
+
+<span class="kw">for</span> (<span class="kw">const</span> key <span class="kw">in</span> obj) {
+  console.log(key, obj[key]);
+}
+<span class="cm">// name 윌리엄 / job 반찬가게 사장 / salary 300000</span></pre>
+    <div class="tip tip-info">💡 숫자에 <code class="inline">_</code>를 사용하면 가독성 구분자로 쓸 수 있다. <code class="inline">300_000</code> = 300000</div>
+
+    <h2 class="sub-title">for...of — 값(value) 순회</h2>
+    <pre><span class="kw">const</span> arr = [<span class="st">'연어'</span>, <span class="st">'아보카도'</span>, <span class="st">'스테이크'</span>, <span class="st">'렌틸콩'</span>];
+
+<span class="kw">for</span> (<span class="kw">const</span> v <span class="kw">of</span> arr) {
+  console.log(v);  <span class="cm">// 연어 / 아보카도 / 스테이크 / 렌틸콩</span>
+}
+
+<span class="cm">// 일반 객체에 for-of 바로 쓰면 TypeError!</span>
+<span class="cm">// → Object.values() 나 Object.keys() 로 먼저 변환</span>
+<span class="kw">for</span> (<span class="kw">const</span> v <span class="kw">of</span> Object.values(obj)) {
+  console.log(v);
+}</pre>
+
+    <table>
+      <tr><th>구분</th><th>for...in</th><th>for...of</th></tr>
+      <tr><td>꺼내는 것</td><td>키(key), 인덱스</td><td>값(value)</td></tr>
+      <tr><td>사용 대상</td><td>객체 속성 탐색</td><td>배열·문자열 순회</td></tr>
+      <tr><td>객체에 직접 사용</td><td>✅ 가능</td><td>❌ TypeError (변환 필요)</td></tr>
+      <tr><td>배열 인덱스 타입</td><td>문자열 "0", "1"...</td><td>해당 없음 (값 직접)</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- 03 -->
+  <div class="section" id="s03">
+    <h1 class="sec-title"><span class="badge">03</span>함수 기본 — 스코프 · return</h1>
+    <p class="desc">함수는 코드를 묶어두었다가 필요할 때 호출하는 블록이다. 함수 안에서 선언된 변수는 함수 밖에서 접근할 수 없다.</p>
+
+    <h2 class="sub-title">전역 변수 vs 지역 변수</h2>
+    <pre><span class="kw">let</span> a = <span class="nm">0</span>;  <span class="cm">// 전역 변수 — 어디서든 접근 가능</span>
+
+<span class="kw">function</span> <span class="fn">myFun</span>() {
+  console.log(a);              <span class="cm">// 전역 변수 읽기 가능</span>
+  a++;                         <span class="cm">// 전역 변수 수정도 가능</span>
+  <span class="kw">let</span> b = <span class="st">'나는 함수 안 변수'</span>;  <span class="cm">// 지역 변수</span>
+  <span class="kw">return</span> b;
+}
+
+<span class="fn">myFun</span>();
+console.log(a);    <span class="cm">// 1</span>
+<span class="ng">// console.log(b); // ReferenceError — 지역 변수는 밖으로 못 나옴</span></pre>
+    <div class="tip tip-danger">❌ 함수 안의 지역 변수는 밖에서 절대 접근 불가. 꺼내려면 반드시 <code class="inline">return</code>을 사용해야 한다.</div>
+
+    <h2 class="sub-title">변수 우선순위 — 가까운 스코프가 이긴다</h2>
+    <pre><span class="kw">let</span> a = <span class="nm">0</span>;  <span class="cm">// 전역</span>
+
+<span class="kw">function</span> <span class="fn">myFun2</span>(a) {   <span class="cm">// 매개변수 a — 함수 스코프</span>
+  {
+    <span class="kw">let</span> a = <span class="nm">1000</span>;       <span class="cm">// 블록 스코프 a</span>
+    console.log(a);    <span class="cm">// 1000</span>
+  }
+  <span class="kw">return</span> a * <span class="nm">2</span>;        <span class="cm">// 매개변수 a 사용 → 100 * 2</span>
+}
+
+console.log(<span class="fn">myFun2</span>(<span class="nm">100</span>)); <span class="cm">// 200</span></pre>
+
+    <table>
+      <tr><th>우선순위</th><th>스코프 종류</th><th>예시</th></tr>
+      <tr><td>1순위 (가장 강함)</td><td>블록 스코프</td><td><code class="inline">{ let a = 1000 }</code></td></tr>
+      <tr><td>2순위</td><td>매개변수 (함수 스코프)</td><td><code class="inline">function f(a)</code></td></tr>
+      <tr><td>3순위</td><td>전역 변수</td><td><code class="inline">let a = 0</code> (최상단)</td></tr>
+    </table>
+
+    <h2 class="sub-title">early return 패턴</h2>
+    <pre><span class="kw">function</span> <span class="fn">myFun3</span>() {
+  <span class="kw">const</span> r = Math.random();
+  <span class="kw">if</span> (r > <span class="nm">0.9</span>) <span class="kw">return</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">5</span>];     <span class="cm">// 배열 반환</span>
+  <span class="kw">if</span> (r > <span class="nm">0.5</span>) <span class="kw">return</span> { a: <span class="nm">10</span> };      <span class="cm">// 객체 반환</span>
+  <span class="kw">return</span> <span class="st">'동전던지기 실패'</span>;              <span class="cm">// 문자열 반환</span>
+}</pre>
+    <div class="tip tip-success">✅ <code class="inline">return</code>을 만나면 함수가 즉시 종료되므로, 그 뒤에 <code class="inline">else</code>가 필요 없어진다. 이것을 early return 패턴이라 한다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 04 -->
+  <div class="section" id="s04">
+    <h1 class="sec-title"><span class="badge">04</span>매개변수 — 기본값 · rest · 객체 전달</h1>
+    <p class="desc"><strong>매개변수(parameter)</strong>는 함수 선언부에 쓰는 변수 이름이고, <strong>인자(argument)</strong>는 호출할 때 실제로 넣는 값이다.</p>
+
+    <h2 class="sub-title">인자 개수가 달라도 오류가 없다</h2>
+    <pre><span class="kw">function</span> <span class="fn">f1</span>(a, b, c) {
+  console.log(a * <span class="nm">2</span>, b * <span class="nm">2</span>, c * <span class="nm">2</span>);
+}
+
+<span class="fn">f1</span>();           <span class="cm">// NaN NaN NaN   (undefined * 2 = NaN)</span>
+<span class="fn">f1</span>(<span class="nm">1</span>, <span class="nm">2</span>);       <span class="cm">// 2 4 NaN       (c = undefined)</span>
+<span class="fn">f1</span>(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>);    <span class="cm">// 2 4 6</span>
+<span class="fn">f1</span>(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>); <span class="cm">// 2 4 6  (4는 무시)</span></pre>
+
+    <h2 class="sub-title">기본값 파라미터</h2>
+    <pre><span class="kw">function</span> <span class="fn">f2</span>(a = <span class="nm">120</span>, b = <span class="nm">150</span>) {
+  <span class="kw">return</span> a * b;
+}
+
+console.log(<span class="fn">f2</span>());     <span class="cm">// 18000  (120 * 150)</span>
+console.log(<span class="fn">f2</span>(<span class="nm">100</span>));  <span class="cm">// 15000  (100 * 150)</span></pre>
+    <div class="tip tip-info">💡 기본값은 인자가 <code class="inline">undefined</code>일 때만 사용된다. <code class="inline">null</code>을 넣으면 기본값이 적용되지 않는다.</div>
+
+    <h2 class="sub-title">나머지 파라미터 (...rest)</h2>
+    <pre><span class="kw">function</span> <span class="fn">f4</span>(a, ...b) {
+  console.log(<span class="st">'a'</span>, a);
+  console.log(<span class="st">'b'</span>, b);  <span class="cm">// b는 항상 배열</span>
+}
+
+<span class="fn">f4</span>(<span class="nm">1</span>);               <span class="cm">// a: 1  /  b: []</span>
+<span class="fn">f4</span>(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>);  <span class="cm">// a: 1  /  b: [2,3,4,5]</span></pre>
+    <div class="compare">
+      <div class="compare-box blue">
+        <div class="compare-label">arguments</div>
+        <ul>
+          <li>유사 배열 (배열 메서드 못 씀)</li>
+          <li>화살표 함수에서 사용 불가</li>
+        </ul>
+      </div>
+      <div class="compare-box green">
+        <div class="compare-label">...rest</div>
+        <ul>
+          <li>진짜 배열 (map, filter 등 가능)</li>
+          <li>화살표 함수에서도 사용 가능</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="sub-title">객체(props)로 인자 전달하기</h2>
+    <pre><span class="kw">function</span> <span class="fn">f5</span>(props) {
+  <span class="kw">if</span> (props.a) console.log(<span class="st">'props.a'</span>, props.a);
+  console.log(<span class="st">'props.b'</span>, props.b || <span class="st">'없음'</span>);
+}
+
+<span class="ng">// f5();        // TypeError — props 가 undefined</span>
+<span class="fn">f5</span>({});         <span class="cm">// 빈 객체라도 넣어야 안전</span>
+<span class="fn">f5</span>({ a: <span class="nm">10</span> }); <span class="cm">// props.a 10</span></pre>
+    <div class="tip tip-success">💡 React에서 props가 바로 이 패턴이다. 구조분해할당을 배우면 <code class="inline">function f5({ a, b })</code>처럼 더 깔끔하게 쓸 수 있다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 05 -->
+  <div class="section" id="s05">
+    <h1 class="sec-title"><span class="badge">05</span>함수 심화 — 표현식 · IIFE · 화살표 함수</h1>
+    <p class="desc">JS에서 함수는 값(일급 객체)이다. 변수에 담거나, 인자로 넘기거나, 즉시 실행할 수 있다.</p>
+
+    <h2 class="sub-title">IIFE — 즉시 실행 함수</h2>
+    <pre>(<span class="kw">function</span> () {
+  console.log(<span class="st">'나는 존재한다'</span>);
+})();  <span class="cm">// 선언과 동시에 즉시 실행, 이름 없음</span></pre>
+
+    <h2 class="sub-title">함수 표현식 — 콜백 패턴</h2>
+    <pre><span class="kw">const</span> f = <span class="kw">function</span> (fn) {
+  fn();  <span class="cm">// 넘겨받은 함수를 실행 (콜백 패턴)</span>
+  console.log(<span class="st">'나는 존재한다 2'</span>);
+};
+
+<span class="fn">f</span>(<span class="kw">function</span> () {
+  console.log(<span class="st">'포케 먹기 싫다'</span>);
+});</pre>
+    <div class="tip tip-info">💡 함수를 인자로 넘기는 것 = 콜백(Callback). <code class="inline">setTimeout</code>, <code class="inline">addEventListener</code> 등에서 매일 만나는 패턴이다.</div>
+
+    <h2 class="sub-title">화살표 함수 (Arrow Function)</h2>
+    <p class="desc"><code class="inline">(입력) =&gt; 출력</code> 형태의 짧은 함수 문법. 본문이 한 줄이면 <code class="inline">return</code>과 <code class="inline">{ }</code>를 생략할 수 있다.</p>
+    <pre><span class="kw">const</span> af  = () => <span class="nm">0</span>;                         <span class="cm">// 인자 없음, 한 줄 반환</span>
+<span class="kw">const</span> af2 = a => console.log(`결과: ${a}`);   <span class="cm">// 인자 1개는 괄호 생략 가능</span>
+
+<span class="kw">const</span> af3 = (a) => {    <span class="cm">// 여러 줄이면 { } 와 return 필요</span>
+  a++;
+  a *= <span class="nm">2</span>;
+  <span class="kw">return</span> a;
+};
+console.log(<span class="fn">af3</span>(<span class="nm">100</span>)); <span class="cm">// 202</span></pre>
+    <div class="tip tip-success">✅ 화살표 함수는 자신만의 <code class="inline">this</code>를 갖지 않는다. 일반 함수와의 가장 큰 차이점이다.</div>
+
+    <table>
+      <tr><th>구분</th><th>함수 선언식</th><th>함수 표현식 / 화살표</th></tr>
+      <tr><td>호이스팅</td><td>✅ 됨 (선언 전 호출 가능)</td><td>❌ 안 됨</td></tr>
+      <tr><td>this</td><td>호출 방식에 따라 달라짐</td><td>화살표: 상위 스코프 this</td></tr>
+      <tr><td>arguments</td><td>✅ 사용 가능</td><td>화살표: ❌ 불가</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- 06 -->
+  <div class="section" id="s06">
+    <h1 class="sec-title"><span class="badge">06</span>구조분해할당 (Destructuring)</h1>
+    <p class="desc">배열이나 객체에서 원하는 값을 꺼내 변수에 한 번에 담는 문법. 코드가 훨씬 짧아지고 읽기 쉬워진다.</p>
+
+    <h2 class="sub-title">객체 구조분해</h2>
+    <pre><span class="kw">const</span> obj = { name: <span class="st">'윌리엄'</span>, age: <span class="nm">18</span>, job: <span class="st">'반찬가게 직원'</span> };
+
+<span class="cm">// 기본</span>
+<span class="kw">const</span> { name, age, job } = obj;
+
+<span class="cm">// 별칭(alias) — 다른 이름으로 받기</span>
+<span class="kw">const</span> { name: personName } = obj;  <span class="cm">// name → personName</span>
+
+<span class="cm">// 기본값 · 없는 키 · rest</span>
+<span class="kw">const</span> { salary, pet = <span class="st">'고양이'</span>, ...rest } = obj;
+console.log(salary); <span class="cm">// undefined — obj에 없음</span>
+console.log(pet);    <span class="cm">// '고양이'  — 기본값</span>
+console.log(rest);   <span class="cm">// { age: 18, job: '반찬가게 직원' }</span></pre>
+    <div class="tip tip-danger">❌ <code class="inline">const { a } = undefined</code> → TypeError! null/undefined에서 구조분해하면 에러가 난다.</div>
+
+    <h2 class="sub-title">배열 구조분해</h2>
+    <pre><span class="kw">const</span> arr = [<span class="st">'삼성전자'</span>, <span class="st">'SK하이닉스'</span>, <span class="st">'SK스퀘어'</span>, <span class="st">'현대차'</span>, <span class="st">'삼성전기'</span>];
+
+<span class="kw">const</span> [a1, a2] = arr;       <span class="cm">// 앞에서부터 순서대로</span>
+<span class="kw">const</span> [, , , , , a7] = arr; <span class="cm">// 쉼표로 건너뛰기</span>
+<span class="kw">const</span> [b, ...c] = arr;      <span class="cm">// 첫 번째 + 나머지 배열</span>
+
+<span class="cm">// 변수 swap — 임시 변수 없이 한 줄 교환</span>
+<span class="kw">let</span> i = <span class="nm">0</span>, j = <span class="nm">100</span>;
+[j, i] = [i, j];
+console.log(i, j); <span class="cm">// 100  0</span></pre>
+    <div class="tip tip-success">💡 <code class="inline">[b, a] = [a, b]</code> 한 줄 swap은 정렬 알고리즘에서 자주 쓰이는 패턴이다.</div>
+
+    <h2 class="sub-title">재할당 vs 얕은복사 vs 깊은복사</h2>
+    <pre><span class="kw">const</span> obj2 = obj;         <span class="cm">// 재할당 — 같은 주소 공유</span>
+<span class="kw">const</span> obj3 = { ...obj };  <span class="cm">// 얕은복사 — 새 객체, 1단계만 복사</span>
+
+<span class="cm">// 주소 비교</span>
+console.log(obj === obj2); <span class="cm">// true  — 같은 객체</span>
+console.log(obj === obj3); <span class="cm">// false — 다른 객체</span>
+
+<span class="cm">// 얕은복사의 함정: 내부 객체는 여전히 공유</span>
+arr[<span class="nm">0</span>] = { a: <span class="nm">1</span> };
+<span class="kw">const</span> arr3 = [...arr];
+arr[<span class="nm">0</span>].a = <span class="nm">1000</span>;
+console.log(arr3[<span class="nm">0</span>]); <span class="cm">// { a: 1000 } — arr3 도 바뀜!</span></pre>
+
+    <table>
+      <tr><th>방식</th><th>코드</th><th>설명</th><th>=== 비교</th></tr>
+      <tr><td>재할당</td><td><code class="inline">const b = a</code></td><td>주소 공유, 하나 바꾸면 둘 다 바뀜</td><td>true</td></tr>
+      <tr><td>얕은복사</td><td><code class="inline">{ ...a }</code> / <code class="inline">[...a]</code></td><td>새 객체. 1단계는 독립, 중첩은 공유</td><td>false</td></tr>
+      <tr><td>깊은복사</td><td><code class="inline">structuredClone(a)</code></td><td>모든 단계 완전 복사</td><td>false</td></tr>
+    </table>
+    <div class="tip tip-warn">⚠ React에서 상태를 업데이트할 때 반드시 새 객체/배열을 만들어야 하는 이유가 바로 재할당은 주소를 공유하기 때문이다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 07 -->
+  <div class="section" id="s07">
+    <h1 class="sec-title"><span class="badge">07</span>호이스팅 (Hoisting)</h1>
+    <p class="desc">JS 엔진이 코드를 실행하기 전에 <code class="inline">var</code> 선언과 <code class="inline">function</code> 선언을 파일 맨 위로 끌어올리는(hoist) 현상이다.</p>
+
+    <pre>console.log(fun);    <span class="cm">// 함수 객체 출력 — 선언 전인데 됨!</span>
+console.log(<span class="fn">fun</span>()); <span class="cm">// 호출도 됨</span>
+console.log(bar);   <span class="cm">// undefined — var는 선언만 올라감</span>
+<span class="ng">// console.log(foo); // ReferenceError — let/const는 안 올라감</span>
+
+foo = <span class="nm">100</span>;   <span class="cm">// var 선언 없이 대입 (전역 오염 위험!)</span>
+<span class="kw">var</span> bar = <span class="nm">200</span>;
+
+<span class="kw">function</span> <span class="fn">fun</span>() { <span class="kw">return</span> <span class="nm">0</span>; }
+<span class="kw">function</span> <span class="fn">fun</span>() { <span class="kw">return</span> <span class="st">'덮어 씌웠지롱'</span>; } <span class="cm">// 재선언도 허용됨!</span></pre>
+
+    <div class="compare">
+      <div class="compare-box blue">
+        <div class="compare-label">호이스팅 됨</div>
+        <ul>
+          <li><code class="inline">function</code> 선언식 → 통째로 위로 올라감</li>
+          <li><code class="inline">var</code> → 선언만 올라감 (값은 undefined)</li>
+        </ul>
+      </div>
+      <div class="compare-box amber">
+        <div class="compare-label">호이스팅 안 됨</div>
+        <ul>
+          <li><code class="inline">let</code>, <code class="inline">const</code> → ReferenceError</li>
+          <li>화살표 함수 / 함수 표현식 → ReferenceError</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tip tip-success">✅ <code class="inline">const</code> / <code class="inline">let</code>과 화살표 함수(또는 함수 표현식)를 위주로 사용하면 호이스팅 문제를 겪을 일이 없다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 08 -->
+  <div class="section" id="s08">
+    <h1 class="sec-title"><span class="badge">08</span>스코프 (Scope)</h1>
+    <p class="desc">스코프는 변수가 살 수 있는 범위다. <code class="inline">var</code>는 함수 스코프, <code class="inline">let</code>/<code class="inline">const</code>는 블록 스코프를 갖는다.</p>
+
+    <pre><span class="kw">let</span> v3 = <span class="st">'바깥 let'</span>;
+
+{
+  <span class="kw">var</span> v1 = <span class="st">'나는 var야'</span>;    <span class="cm">// 블록 무시 — 밖에서 접근 가능!</span>
+  <span class="kw">let</span> v2 = <span class="st">'나는 let이야'</span>;  <span class="cm">// 블록 안에서만 존재</span>
+  v3 = <span class="st">'안에서 바깥 수정'</span>;   <span class="cm">// 바깥 변수는 수정 가능</span>
+}
+
+console.log(v1); <span class="cm">// '나는 var야'  ← 블록 밖에서 접근됨</span>
+<span class="ng">// console.log(v2); // ReferenceError</span>
+console.log(v3); <span class="cm">// '안에서 바깥 수정'</span>
+
+<span class="cm">// for 루프의 i 도 블록 스코프</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++) { ... }
+<span class="ng">// console.log(i); // ReferenceError</span>
+
+<span class="cm">// var 는 함수 안에서만 격리</span>
+<span class="kw">function</span> <span class="fn">f1</span>() {
+  <span class="kw">var</span> vv1 = <span class="st">'함수 안 var'</span>;
+}
+<span class="ng">// console.log(vv1); // ReferenceError</span></pre>
+
+    <table>
+      <tr><th>키워드</th><th>스코프</th><th>블록 { }에서 격리</th><th>호이스팅</th></tr>
+      <tr><td><code class="inline">var</code></td><td>함수 스코프</td><td>❌ (함수만 격리)</td><td>✅ (undefined)</td></tr>
+      <tr><td><code class="inline">let</code></td><td>블록 스코프</td><td>✅</td><td>❌ (에러)</td></tr>
+      <tr><td><code class="inline">const</code></td><td>블록 스코프</td><td>✅</td><td>❌ (에러)</td></tr>
+    </table>
+    <div class="tip tip-success">✅ <code class="inline">var</code>는 쓰지 말자. <code class="inline">let</code> / <code class="inline">const</code>만 사용하면 스코프 문제가 훨씬 단순해진다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 09 -->
+  <div class="section" id="s09">
+    <h1 class="sec-title"><span class="badge">09</span>클로저 (Closure)</h1>
+    <p class="desc">클로저는 함수가 선언된 환경(스코프)을 기억하는 성질이다. 내부 함수가 외부 함수의 변수를 참조하면, 외부 함수가 종료된 후에도 그 변수가 메모리에 유지된다.</p>
+
+    <h2 class="sub-title">렉시컬 스코프 — 선언된 위치가 기준</h2>
+    <pre><span class="kw">const</span> v = <span class="st">'global'</span>;
+
+<span class="kw">function</span> <span class="fn">f</span>() {
+  console.log(v); <span class="cm">// 'global' — 선언된 위치 기준</span>
+}
+
+<span class="kw">function</span> <span class="fn">f2</span>() {
+  <span class="kw">const</span> v = <span class="st">'local'</span>;
+  <span class="fn">f</span>();  <span class="cm">// f 는 f2 안에서 호출되지만…</span>
+}
+
+<span class="fn">f2</span>(); <span class="cm">// 'global' 출력 — f 는 전역에서 선언됐기 때문!</span></pre>
+    <div class="tip tip-info">💡 "어디서 호출하든, 선언된 시점의 스코프를 따른다" — 이것이 렉시컬(정적) 스코프다.</div>
+
+    <h2 class="sub-title">클로저 예시 — 카운터</h2>
+    <pre><span class="kw">function</span> <span class="fn">f3</span>() {
+  <span class="kw">let</span> c = <span class="nm">0</span>;            <span class="cm">// 이 변수가 클로저로 캡처됨</span>
+  <span class="kw">return function</span> () {
+    <span class="kw">return</span> ++c;         <span class="cm">// c 를 계속 기억하고 수정</span>
+  };
+}
+
+<span class="kw">const</span> counter = <span class="fn">f3</span>(); <span class="cm">// f3 실행 종료 — 하지만 c 는 살아있음!</span>
+console.log(<span class="fn">counter</span>()); <span class="cm">// 1</span>
+console.log(<span class="fn">counter</span>()); <span class="cm">// 2  ← c 가 유지되고 있음</span></pre>
+    <div class="tip tip-success">💡 JS는 접근 제어자(private)가 없다. 클로저로 변수를 함수 안에 가두면 외부에서 직접 접근 불가 → 상태 보호. React의 <code class="inline">useState</code>도 클로저 기반이다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 10 -->
+  <div class="section" id="s10">
+    <h1 class="sec-title"><span class="badge">10</span>객체 (Object)</h1>
+    <p class="desc">객체는 여러 정보를 키: 값 쌍으로 묶어두는 자료구조다. 점(.) 또는 대괄호([])로 접근하며, 선언 후에도 자유롭게 속성을 추가·수정·삭제할 수 있다.</p>
+
+    <h2 class="sub-title">프로퍼티 추가 · 수정 · 삭제</h2>
+    <pre><span class="kw">const</span> program = {
+  name: <span class="st">'로또 생성기'</span>,
+  numbers: [],
+  <span class="fn">pickNumber</span>() {   <span class="cm">// 메서드 단축 문법</span>
+    console.log(<span class="st">'숫자를 뽑았습니다!'</span>);
+  },
+};
+
+program.language = <span class="st">'JS'</span>;        <span class="cm">// 추가</span>
+program.numbers = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">5</span>,<span class="nm">8</span>]; <span class="cm">// 수정</span>
+<span class="kw">delete</span> program.trash;           <span class="cm">// 삭제 (거의 안 씀)</span></pre>
+
+    <h2 class="sub-title">Object 유틸리티 메서드 3총사</h2>
+    <pre>Object.keys(program);    <span class="cm">// ['name', 'language', 'numbers']</span>
+Object.values(program);  <span class="cm">// ['로또 생성기', 'JS', [...]]</span>
+Object.entries(program); <span class="cm">// [['name','로또 생성기'], ...]</span>
+
+<span class="cm">// entries + 구조분해할당 — 키·값 동시에</span>
+<span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> Object.entries(program)) {
+  console.log(k, v);
+}</pre>
+
+    <table>
+      <tr><th>메서드</th><th>반환값</th><th>주로 쓰는 상황</th></tr>
+      <tr><td><code class="inline">Object.keys(obj)</code></td><td>키 배열</td><td>키 목록만 필요할 때</td></tr>
+      <tr><td><code class="inline">Object.values(obj)</code></td><td>값 배열</td><td>값 목록만 필요할 때</td></tr>
+      <tr><td><code class="inline">Object.entries(obj)</code></td><td>[키, 값] 쌍 배열</td><td>키·값 동시에 필요할 때</td></tr>
+    </table>
+    <div class="tip tip-success">💡 <code class="inline">Object.entries</code> + 구조분해할당 <code class="inline">[k, v]</code> 조합은 실무에서 자주 쓰이는 패턴이다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 11 -->
+  <div class="section" id="s11">
+    <h1 class="sec-title"><span class="badge">11</span>배열 메서드 — 스택 · 큐</h1>
+    <p class="desc">push / pop / shift / unshift / splice는 배열의 앞/뒤에 요소를 추가·제거하는 기본 메서드다.</p>
+
+    <pre><span class="kw">const</span> arr = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>];
+
+arr.push(<span class="nm">11</span>);      <span class="cm">// 맨 뒤 추가  → [1,2,3,4,5,11]</span>
+arr.pop();         <span class="cm">// 맨 뒤 제거  → 11 반환, [1,2,3,4,5]</span>
+arr.unshift(<span class="st">'a'</span>); <span class="cm">// 맨 앞 추가  → ['a',1,2,3,4,5]</span>
+arr.shift();       <span class="cm">// 맨 앞 제거  → 'a' 반환, [1,2,3,4,5]</span>
+
+<span class="cm">// splice(시작인덱스, 개수) — 중간 제거</span>
+arr.splice(<span class="nm">1</span>, <span class="nm">2</span>); <span class="cm">// 인덱스 1부터 2개 제거 → [2,3] 반환</span></pre>
+
+    <table>
+      <tr><th>메서드</th><th>위치</th><th>동작</th><th>반환값</th></tr>
+      <tr><td><code class="inline">push(val)</code></td><td>맨 뒤</td><td>추가</td><td>새 길이</td></tr>
+      <tr><td><code class="inline">pop()</code></td><td>맨 뒤</td><td>제거</td><td>제거된 요소</td></tr>
+      <tr><td><code class="inline">unshift(val)</code></td><td>맨 앞</td><td>추가</td><td>새 길이</td></tr>
+      <tr><td><code class="inline">shift()</code></td><td>맨 앞</td><td>제거</td><td>제거된 요소</td></tr>
+      <tr><td><code class="inline">splice(i, n)</code></td><td>중간</td><td>제거/교체</td><td>제거된 요소 배열</td></tr>
+    </table>
+
+    <div class="compare">
+      <div class="compare-box blue">
+        <div class="compare-label">스택 (Stack) — 후입선출 LIFO</div>
+        <ul>
+          <li><code class="inline">push</code>로 넣고 <code class="inline">pop</code>으로 뺌</li>
+          <li>마지막에 넣은 게 먼저 나옴</li>
+        </ul>
+      </div>
+      <div class="compare-box green">
+        <div class="compare-label">큐 (Queue) — 선입선출 FIFO</div>
+        <ul>
+          <li><code class="inline">push</code>로 넣고 <code class="inline">shift</code>로 뺌</li>
+          <li>먼저 넣은 게 먼저 나옴</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tip tip-warn">⚠ push / pop / shift / unshift / splice 는 모두 원본 배열을 직접 수정한다. React에서는 <code class="inline">[...arr]</code>로 새 배열을 만들어 사용한다.</div>
+  </div>
+
+  <hr>
+
+  <!-- 요약 -->
+  <div class="section" id="summary">
+    <h1 class="sec-title">전체 핵심 요약</h1>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="num-badge">01 반복문</div>
+        <p>while / for. <code class="inline">break</code>로 종료, <code class="inline">continue</code>로 건너뜀. 배열 조건은 <code class="inline">&lt; arr.length</code></p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">02 for-in / for-of</div>
+        <p><code class="inline">in</code>은 키 꺼내기, <code class="inline">of</code>는 값 꺼내기. 일반 객체에 <code class="inline">of</code> 직접 사용 불가</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">03 함수 기본</div>
+        <p>지역변수는 밖으로 못 나옴. <code class="inline">return</code>으로 꺼내고 종료. early return 패턴</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">04 매개변수</div>
+        <p>기본값, <code class="inline">...rest</code>로 가변 인자 처리. 객체 하나로 묶어 전달 (props 패턴)</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">05 함수 심화</div>
+        <p>함수는 값(일급 객체). IIFE, 콜백, 화살표 함수. 화살표 함수는 <code class="inline">this</code> 없음</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">06 구조분해할당</div>
+        <p>객체 <code class="inline">{ }</code>, 배열 <code class="inline">[ ]</code>에서 값 꺼내기. swap, rest, 얕은복사 vs 깊은복사</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">07 호이스팅</div>
+        <p><code class="inline">var</code> / <code class="inline">function</code>은 위로 올라감. <code class="inline">const</code> / <code class="inline">let</code> + 화살표 함수로 방지</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">08 스코프</div>
+        <p><code class="inline">var</code>는 함수 스코프, <code class="inline">let</code> / <code class="inline">const</code>는 블록 스코프. <code class="inline">var</code>는 쓰지 말 것</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">09 클로저</div>
+        <p>함수는 선언된 위치의 스코프를 기억. 상태 보호 & 유지에 사용. React <code class="inline">useState</code>의 기반</p>
+      </div>
+      <div class="summary-card">
+        <div class="num-badge">10 객체</div>
+        <p>프로퍼티 추가/수정/삭제. <code class="inline">Object.keys</code> / <code class="inline">values</code> / <code class="inline">entries</code>로 순회</p>
+      </div>
+      <div class="summary-card" style="grid-column: span 2;">
+        <div class="num-badge">11 배열</div>
+        <p><code class="inline">push</code>/<code class="inline">pop</code>(스택 LIFO), <code class="inline">push</code>/<code class="inline">shift</code>(큐 FIFO), <code class="inline">splice</code>(중간 수정). 원본 수정에 주의!</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // 사이드바 활성화
+  const sections = document.querySelectorAll('.section');
+  const links = document.querySelectorAll('.sidebar a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 60) cur = s.id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  });
+</script>
+</body>
+</html>
